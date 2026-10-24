@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" class="js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Apex Bee | Everything Your Brand Needs</title>
+  <meta name="description" content="Apex Bee is a creative and technology company: video editing, motion graphics, design, websites, software, AI and automation. Everything your brand needs.">
+  <meta name="theme-color" content="#0a0a0a">
+  <meta name="color-scheme" content="light">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+
+  <!-- Security: CSP via meta (see README for server headers that meta cannot set) -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https:; object-src 'none'; base-uri 'self'; form-action 'self'">
+
+  <!-- Social preview -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Apex Bee">
+  <meta property="og:title" content="Apex Bee | Everything Your Brand Needs">
+  <meta property="og:description" content="A creative and technology company: video, motion, design, websites, software, AI and automation.">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:site" content="@apex_bee_">
+
+  <!-- Icons (original logo file) -->
+  <link rel="icon" type="image/jpeg" href="apex.jpg">
+  <link rel="apple-touch-icon" href="apex.jpg">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700;800&display=swap">
+
+  <!-- Shared stylesheet -->
+  <link rel="stylesheet" href="style.css">
+  <link rel="preload" href="apex.jpg" as="image">
+
+  <!-- Without JavaScript: no splash, no hidden reveals, normal scrolling -->
+  <noscript>
+    <style>
+      html.js .splash { display: none !important; }
+      html.js .reveal { opacity: 1 !important; transform: none !important; }
+      body.is-loading { overflow: auto !important; }
+      .noscript-msg { max-width: 640px; margin: 15vh auto; padding: 0 1.5rem; font-family: system-ui, sans-serif; line-height: 1.6; }
+      .noscript-msg a { color: #856208; }
+    </style>
+  </noscript>
+</head>
+
+<body class="is-loading">
+
+  <!-- Splash screen (JPEG has a white background, so the stage is warm white) -->
+  <div class="splash" id="splash" aria-hidden="true">
+    <img class="splash__logo" src="apex.jpg" alt="" width="220" height="220" decoding="async">
+    <div class="splash__bar"></div>
+  </div>
+
+  <!-- Header, marquee, sidebar, pages, footer and bottom nav are rendered by app.js -->
+  <div id="root"></div>
+
+  <noscript>
+    <div class="noscript-msg">
+      <h1>Apex Bee</h1>
+      <p>Everything Your Brand Needs. This website needs JavaScript to display its pages. Please enable it, or contact us directly:</p>
+      <ul>
+        <li><a href="https://wa.me/2348106821963">WhatsApp +234 810 682 1963</a></li>
+        <li><a href="https://wa.me/2349019104417">WhatsApp +234 901 910 4417</a></li>
+        <li><a href="https://x.com/apex_bee_">X @apex_bee_</a></li>
+      </ul>
+    </div>
+  </noscript>
+
+  <script src="app.js" defer></script>
+</body>
+</html>
