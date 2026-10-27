@@ -1,7 +1,7 @@
 /* ==========================================================================
    APEX BEE - app.js
    Single JavaScript file: page content, hash router, shell (floating header,
-   icon rail / full menu, footer), splash, reveals, tabs, contact form.
+   icon menu, footer), splash, reveals, tabs, contact form.
    Vanilla JS only. No dependencies.
 
    ROUTES (hash based)   #/  #/about  #/services  #/<service-slug>
@@ -228,14 +228,6 @@
       ]
     }
   ];
-
-  /* Short labels so footer columns stay tidy */
-  const FOOT_LABEL = {
-    'video-editing': 'Video Editing', 'motion-graphics': 'Motion Graphics', 'graphic-design': 'Graphic Design',
-    'brand-design': 'Brand Design', 'website-development': 'Brand Websites', 'ecommerce-development': 'E-commerce Websites',
-    'content-creation': 'Content Creation', 'ai-automation': 'AI &amp; Automation', 'website-redesign': 'Redesign &amp; Rebranding',
-    'website-consultation': 'Website Consultation', 'software-development': 'Software Development', 'social-app-integration': 'Social App Integration'
-  };
 
   const FAQ = [
     ['What does Apex Bee do?', 'Apex Bee is a creative and technology company. We cover video editing, motion graphics, graphic and brand design, websites and e-commerce, content creation, AI and automation, software development and social app integration.'],
@@ -833,8 +825,8 @@
 
   /* ----------------------------------------------------------------- SHELL */
   let main, menu, menuNav, toggleBtn, closeBtn, announcer, revealObserver;
-  /* mode: 'rail' (slim icon rail, default) | 'full' (full-screen menu) */
-  const state = { mode: 'rail', lastFocus: null, lastSubmit: 0, firstRender: true };
+  /* mode: 'closed' | 'full' (full-screen menu) | 'rail' (slim icon rail) */
+  const state = { mode: 'closed', lastFocus: null, lastSubmit: 0, firstRender: true };
 
   function buildFooter() {
     const year = new Date().getFullYear();
@@ -842,9 +834,14 @@
       return '<li><a class="footer__contact-item" ' + attrs + '><span class="footer__contact-icon">' + iconHtml + '</span>' +
         '<span class="footer__contact-text"><span class="footer__contact-label">' + label + '</span><span class="footer__contact-value">' + value + '</span></span></a></li>';
     };
-    return '<footer class="site-footer"><div class="container footer__main">' +
+    return '<footer class="site-footer"><div class="container">' +
+      '<div class="footer__cta"><h2 class="footer__cta-title display-2">Let\u2019s build <em>something sharp.</em></h2>' +
+      '<div class="footer__cta-actions">' +
+      '<a class="btn btn--gold" href="#/contact">Start a project' + icon('arrow') + '</a>' +
+      '<a class="btn btn--ghost" ' + ext(wa(CONFIG.whatsapp[0].number, 'Hello Apex Bee, I would like to discuss a project.')) + '>' + brandIcon('whatsapp') + 'WhatsApp us</a></div></div>' +
 
-      '<div class="footer__brand"><a class="footer__logo" href="#/" aria-label="Apex Bee home"><img src="' + CONFIG.logo + '" alt="Apex Bee logo" width="200" height="200" loading="lazy"></a>' +
+      '<div class="footer__top">' +
+      '<div class="footer__brand"><a class="footer__logo" href="#/" aria-label="Apex Bee home"><img src="' + CONFIG.logo + '" alt="Apex Bee logo" width="190" height="190" loading="lazy"></a>' +
       '<p class="footer__about">' + CONFIG.slogan + '. A creative and technology company for video, design, web, software and automation.</p>' +
       '<div class="footer__socials">' +
       CONFIG.whatsapp.map(function (w) {
@@ -853,37 +850,37 @@
       '<a class="social-link" href="mailto:' + CONFIG.email + '" aria-label="Email ' + CONFIG.email + '">' + brandIcon('gmail') + '</a>' +
       '<a class="social-link" ' + ext(CONFIG.x.url) + ' aria-label="Apex Bee on X">' + brandIcon('x') + '</a></div></div>' +
 
-      '<nav aria-label="Company"><h2 class="footer__title">Company</h2><ul class="footer__list">' +
-      [['', 'Home'], ['about', 'About'], ['services', 'Services'], ['portfolio', 'Work'], ['process', 'Process'], ['faq', 'FAQ'], ['contact', 'Contact']].map(function (l) {
-        return '<li><a href="#/' + l[0] + '">' + l[1] + '</a></li>';
-      }).join('') + '</ul></nav>' +
-
-      '<nav aria-label="Services"><h2 class="footer__title">Services</h2><ul class="footer__list footer__list--cols">' +
-      SERVICES.map(function (s) { return '<li><a href="#/' + s.slug + '">' + FOOT_LABEL[s.slug] + '</a></li>'; }).join('') + '</ul></nav>' +
-
-      '<div><h2 class="footer__title">Contact</h2><ul class="footer__contact">' +
+      '<div class="footer__contact"><h2 class="footer__title">Contact</h2><ul class="footer__contact-grid">' +
       CONFIG.whatsapp.map(function (w, i) {
         return contactItem(brandIcon('whatsapp'), 'WhatsApp ' + (i + 1), w.label, ext(wa(w.number, 'Hello Apex Bee, I would like to discuss a project.')));
       }).join('') +
       contactItem(brandIcon('gmail'), 'Email', CONFIG.email, 'href="mailto:' + CONFIG.email + '"') +
       contactItem(brandIcon('x'), 'X', CONFIG.x.handle, ext(CONFIG.x.url)) +
-      '</ul></div>' +
+      '</ul></div></div>' +
 
+      '<div class="footer__links">' +
+      '<div><h2 class="footer__title">Company</h2><ul class="footer__list">' +
+      [['', 'Home'], ['about', 'About'], ['services', 'Services'], ['portfolio', 'Work'], ['process', 'Process'], ['faq', 'FAQ'], ['contact', 'Contact']].map(function (l) {
+        return '<li><a href="#/' + l[0] + '">' + l[1] + '</a></li>';
+      }).join('') + '</ul></div>' +
+      '<div><h2 class="footer__title">Services</h2><ul class="footer__list footer__list--cols">' +
+      SERVICES.map(function (s) { return '<li><a href="#/' + s.slug + '">' + s.title + '</a></li>'; }).join('') + '</ul></div>' +
       '</div>' +
-      '<div class="footer__bar"><div class="container footer__bottom"><p>&copy; ' + year + ' ' + CONFIG.brand + '. All rights reserved.</p>' +
-      '<ul class="footer__legal"><li><a href="#/privacy-policy">Privacy Policy</a></li><li><a href="#/terms">Terms of Use</a></li><li><a href="#/faq">FAQ</a></li></ul></div></div>' +
-      '</footer>';
+
+      '<div class="footer__bottom"><p>&copy; ' + year + ' ' + CONFIG.brand + '. All rights reserved.</p>' +
+      '<ul class="footer__legal"><li><a href="#/privacy-policy">Privacy Policy</a></li><li><a href="#/terms">Terms of Use</a></li><li><a href="#/faq">FAQ</a></li></ul></div>' +
+      '</div></footer>';
   }
 
   function buildMenu() {
     const link = function (n) {
       return '<a class="menu__link" href="#/' + n[0] + '" data-key="' + n[0] + '" title="' + n[1] + '">' + icon(n[2]) + '<span class="menu__label">' + n[1] + '</span></a>';
     };
-    return '<aside class="menu" id="menu" aria-label="Menu">' +
+    return '<aside class="menu" id="menu" aria-label="Menu" aria-hidden="true">' +
       '<div class="menu__head">' +
-      '<button class="menu__toggle" type="button" data-menu-toggle aria-label="Expand menu" title="Expand menu"><span id="toggleIcon">' + icon('panelOpen') + '</span></button>' +
+      '<button class="menu__toggle" type="button" data-menu-toggle aria-label="Collapse menu to icons" title="Collapse menu to icons"><span id="toggleIcon">' + icon('panelClose') + '</span></button>' +
       '<div class="menu__brand menu__label"><strong>Apex Bee</strong><small>Navigation</small></div>' +
-      '<button class="menu__close" type="button" data-close-menu aria-label="Collapse menu">' + icon('close') + '</button></div>' +
+      '<button class="menu__close menu__label" type="button" data-close-menu aria-label="Close menu">' + icon('close') + '</button></div>' +
       '<div class="menu__divider"></div>' +
       '<nav class="menu__nav" id="menuNav" aria-label="Pages">' +
       '<div class="menu__group"><p class="menu__group-title">Main menu</p>' + NAV.map(link).join('') + '</div>' +
@@ -891,16 +888,21 @@
       '</nav>' +
       '<button class="menu__more" type="button" data-menu-more aria-label="Scroll menu down">' + icon('down') + '</button>' +
       '<div class="menu__foot">' +
-      '<a class="menu__cta menu__cta--wa" ' + ext(wa(CONFIG.whatsapp[0].number, 'Hello Apex Bee, I would like to discuss a project.')) + ' title="Chat on WhatsApp" aria-label="Chat on WhatsApp">' + brandIcon('whatsapp') + '<span class="menu__label">Chat on WhatsApp</span></a>' +
-      '<a class="menu__cta menu__cta--mail" href="mailto:' + CONFIG.email + '" title="Email us" aria-label="Email us">' + brandIcon('gmail') + '<span class="menu__label">Email us</span></a>' +
+      '<a class="menu__cta menu__cta--wa" ' + ext(wa(CONFIG.whatsapp[0].number, 'Hello Apex Bee, I would like to discuss a project.')) + ' title="Chat on WhatsApp">' + brandIcon('whatsapp') + '<span class="menu__label">Chat on WhatsApp</span></a>' +
+      '<a class="menu__cta menu__cta--mail" href="mailto:' + CONFIG.email + '" title="Email us">' + brandIcon('gmail') + '<span class="menu__label">Email us</span></a>' +
       '</div></aside>';
   }
 
   function buildShell() {
+    const navItems = NAV.map(function (n) {
+      return '<li><a class="nav__link" href="#/' + n[0] + '" data-key="' + n[0] + '">' + icon(n[2]) + n[1] + '</a></li>';
+    }).join('');
+
     return markSprite() +
       '<a class="skip-link" href="#/" data-skip>Skip to content</a>' +
       '<header class="site-header"><div class="container site-header__inner">' +
       brandLockup() +
+      '<nav class="nav" aria-label="Primary"><ul class="nav__list">' + navItems + '</ul></nav>' +
       '<div class="site-header__actions"><a class="btn btn--gold btn--sm" href="#/contact">Start a project</a>' +
       '<button class="hamburger" type="button" data-open-menu aria-controls="menu" aria-expanded="false" aria-label="Open menu">' +
       '<span class="hamburger__line"></span><span class="hamburger__line"></span><span class="hamburger__line"></span></button></div>' +
@@ -919,30 +921,40 @@
     menu.classList.toggle('can-scroll', more);
   }
 
-  function setMode(mode, restoreFocus) {
-    if (mode === state.mode) return;
+  function setMode(mode) {
+    const prev = state.mode;
+    if (mode === prev) return;
     state.mode = mode;
-    const full = mode === 'full';
+    const open = mode !== 'closed';
+    const rail = mode === 'rail';
 
-    menu.classList.toggle('is-full', full);
-    document.body.classList.toggle('nav-open', full);
+    menu.classList.toggle('is-open', open);
+    menu.classList.toggle('is-rail', rail);
+    document.body.classList.toggle('nav-open', mode === 'full');
+    menu.inert = !open;
+    menu.setAttribute('aria-hidden', String(!open));
 
     $$('[data-open-menu]').forEach(function (b) {
-      b.setAttribute('aria-expanded', String(full));
-      b.setAttribute('aria-label', full ? 'Collapse menu' : 'Open menu');
+      b.setAttribute('aria-expanded', String(open));
+      b.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
     });
-    const label = full ? 'Collapse menu to icons' : 'Expand menu';
+
+    const label = rail ? 'Expand menu' : 'Collapse menu to icons';
     toggleBtn.setAttribute('aria-label', label);
     toggleBtn.title = label;
-    $('#toggleIcon', toggleBtn).innerHTML = icon(full ? 'panelClose' : 'panelOpen');
+    $('#toggleIcon', toggleBtn).innerHTML = icon(rail ? 'panelOpen' : 'panelClose');
 
-    if (full) {
+    if (prev === 'closed' && open) {
       state.lastFocus = document.activeElement;
-      requestAnimationFrame(function () { closeBtn.focus({ preventScroll: true }); });
-    } else if (restoreFocus && state.lastFocus && state.lastFocus.focus) {
-      state.lastFocus.focus({ preventScroll: true });
+      requestAnimationFrame(function () { (rail ? toggleBtn : closeBtn).focus({ preventScroll: true }); });
     }
-    requestAnimationFrame(updateMore);
+    setTimeout(updateMore, 400);
+  }
+
+  function closeMenu(restoreFocus) {
+    if (state.mode === 'closed') return;
+    setMode('closed');
+    if (restoreFocus && state.lastFocus && state.lastFocus.focus) state.lastFocus.focus({ preventScroll: true });
   }
 
   function bindShell() {
@@ -952,6 +964,7 @@
     toggleBtn = $('[data-menu-toggle]', menu);
     closeBtn = $('[data-close-menu]', menu);
     announcer = $('#announcer');
+    menu.inert = true;
 
     menuNav.addEventListener('scroll', updateMore, { passive: true });
     window.addEventListener('resize', updateMore);
@@ -959,19 +972,19 @@
     document.addEventListener('click', function (e) {
       const t = e.target.closest ? e.target : null;
       if (!t) return;
-      if (t.closest('[data-open-menu]')) { setMode(state.mode === 'full' ? 'rail' : 'full', true); return; }
-      if (t.closest('[data-menu-toggle]')) { setMode(state.mode === 'full' ? 'rail' : 'full', true); return; }
-      if (t.closest('[data-close-menu]')) { setMode('rail', true); return; }
+      if (t.closest('[data-open-menu]')) { state.mode === 'closed' ? setMode('full') : closeMenu(true); return; }
+      if (t.closest('[data-menu-toggle]')) { setMode(state.mode === 'full' ? 'rail' : 'full'); return; }
+      if (t.closest('[data-close-menu]')) { closeMenu(true); return; }
       if (t.closest('[data-menu-more]')) { menuNav.scrollBy({ top: 160, behavior: reduceMotion.matches ? 'auto' : 'smooth' }); return; }
-      if (t.closest('.overlay')) { setMode('rail', true); return; }
+      if (t.closest('.overlay')) { closeMenu(true); return; }
       if (t.closest('[data-skip]')) { e.preventDefault(); main.focus({ preventScroll: false }); return; }
-      if (state.mode === 'full' && t.closest('.menu a[href^="#/"]')) setMode('rail', false);
+      if (state.mode === 'full' && t.closest('.menu a[href^="#/"]')) closeMenu(false);
     });
 
     document.addEventListener('keydown', function (e) {
-      if (state.mode !== 'full') return;
-      if (e.key === 'Escape') { e.preventDefault(); setMode('rail', true); return; }
-      if (e.key === 'Tab') {
+      if (state.mode === 'closed') return;
+      if (e.key === 'Escape') { e.preventDefault(); closeMenu(true); return; }
+      if (e.key === 'Tab' && state.mode === 'full') {
         const f = $$('a[href], button:not([disabled])', menu).filter(function (el) { return el.offsetParent !== null; });
         if (!f.length) return;
         const first = f[0], last = f[f.length - 1];
@@ -979,11 +992,17 @@
         else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
       }
     });
+
+    const desktop = window.matchMedia('(min-width: 1024px)');
+    const onChange = function (e) { if (e.matches) closeMenu(false); };
+    if (desktop.addEventListener) desktop.addEventListener('change', onChange);
+    else if (desktop.addListener) desktop.addListener(onChange);
   }
 
   function setActive(key) {
-    $$('.menu__link').forEach(function (a) {
-      const on = key !== null && a.getAttribute('data-key') === key;
+    $$('.nav__link, .menu__link').forEach(function (a) {
+      const k = a.getAttribute('data-key');
+      const on = key !== null && k === key;
       a.classList.toggle('is-active', on);
       if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
     });
@@ -1011,11 +1030,12 @@
     m.setAttribute('content', desc);
   }
 
-  function paint(result) {
+  function paint(result, slug) {
     const page = result.page;
     main.innerHTML = page.html;
     setMeta(page.title, page.desc);
-    setActive(result.key);
+    /* faq / privacy / terms live in the "More" group; match them by slug */
+    setActive(result.key === null || result.key === 'faq' || result.key === 'privacy-policy' || result.key === 'terms' ? (result.key || null) : result.key);
     if (page.mount) page.mount(main);
     initReveal(main);
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
@@ -1025,16 +1045,15 @@
     state.firstRender = false;
   }
 
-  /* Page change: quick opacity-only fade (no transforms on the whole page) */
   function route() {
     const r = parseHash();
     const result = resolve(r.slug, r.params);
-    if (state.firstRender || reduceMotion.matches || !main.animate) { paint(result); return; }
-    const out = main.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 120, easing: 'ease-out', fill: 'forwards' });
+    if (state.firstRender || reduceMotion.matches || !main.animate) { paint(result, r.slug); return; }
+    const out = main.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 160, easing: 'ease-out', fill: 'forwards' });
     out.onfinish = function () {
-      paint(result);
+      paint(result, r.slug);
       out.cancel();
-      main.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200, easing: 'ease-out' });
+      main.animate([{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }], { duration: 320, easing: 'cubic-bezier(0.22,0.61,0.36,1)' });
     };
   }
 
@@ -1175,11 +1194,9 @@
   function init() {
     const root = $('#root');
     root.innerHTML = buildShell();
-    document.body.classList.add('has-rail');
     bindShell();
     route();
     window.addEventListener('hashchange', route);
-    requestAnimationFrame(updateMore);
     runSplash();
   }
 
