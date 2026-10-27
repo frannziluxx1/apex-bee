@@ -1,7 +1,7 @@
 /* ==========================================================================
    APEX BEE - app.js
-   Single JavaScript file: page content, hash router, shell (marquee, floating
-   header, sidebar, footer), splash, reveals, contact form.
+   Single JavaScript file: page content, hash router, shell (floating header,
+   icon menu, footer), splash, reveals, tabs, contact form.
    Vanilla JS only. No dependencies.
 
    ROUTES (hash based)   #/  #/about  #/services  #/<service-slug>
@@ -54,9 +54,14 @@
     workflow: '<rect width="8" height="8" x="3" y="3" rx="2"/><path d="M7 11v4a2 2 0 0 0 2 2h4"/><rect width="8" height="8" x="13" y="13" rx="2"/>',
     mail: '<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>',
     help: '<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/>',
-    arrow: '<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>'
+    shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+    file: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h8"/>',
+    close: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+    down: '<path d="m6 9 6 6 6-6"/>',
+    arrow: '<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',
+    panelOpen: '<rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16"/><path d="m15 9 3 3-3 3"/>',
+    panelClose: '<rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16"/><path d="m17 9-3 3 3 3"/>'
   };
-  /* Brand glyphs (filled, single colour via currentColor) */
   const BRAND_ICONS = {
     whatsapp: 'M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z',
     x: 'M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z',
@@ -68,18 +73,24 @@
   function brandIcon(name) {
     return '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="' + BRAND_ICONS[name] + '"/></svg>';
   }
-  /* Header/footer brand mark: hand-built SVG of the A/B logo (gold A, B and
-     swoosh follow the text colour). The original apex.jpg is untouched. */
-  function brandMark() {
-    return '<span class="brand__mark"><svg viewBox="0 0 52 48" aria-hidden="true" focusable="false">' +
-      '<path fill="#C9971C" d="M2 44 19 5h6.2L12.6 44z"/>' +
-      '<path fill="#E8B923" d="M19 5h6.2l-2.6 8.2z"/>' +
-      '<path fill="none" stroke="currentColor" stroke-width="4.4" stroke-linejoin="round" stroke-linecap="round" d="M29 7v33M29 7h6.5a6.2 6.2 0 0 1 0 12.4H29m0 0h8.5a10 10 0 0 1 0 20.6H29"/>' +
-      '<path fill="currentColor" d="M5 35C19 25 34 22 50 27 35 26 21 31 10 43z"/>' +
-      '</svg></span>';
+
+  /* Logo mark: vector trace of the AB monogram in apex.jpg. Gold uses a
+     gradient, the B and swoosh use currentColor (black on light surfaces).
+     Defined once as a <symbol> and reused with <use>. */
+  const MARK_GOLD = 'M17.2 533.2C18.3 531.1 20.9 525.2 21.8 523.0C25.4 514.2 29.6 505.3 30.7 503.9C31.4 503.1 32.0 501.8 32.0 501.1C32.0 500.4 34.3 495.0 37.1 489.2C40.0 483.3 43.5 475.8 45.0 472.5C46.6 469.2 52.5 456.8 58.2 445.0C64.0 433.2 71.6 417.4 75.1 410.0C78.6 402.6 92.6 374.5 106.1 347.5C128.9 302.1 136.2 287.8 154.8 251.9C158.6 244.5 166.1 229.9 171.5 219.5C176.9 209.1 182.0 199.2 183.0 197.5C185.1 194.0 190.5 183.9 198.3 169.0C204.6 156.9 208.1 150.3 213.6 140.5C220.0 128.9 221.5 126.2 232.0 106.5C234.3 102.1 237.5 96.5 238.9 94.0C240.4 91.5 242.9 86.9 244.5 83.7C246.1 80.5 247.8 77.7 248.2 77.4C248.6 77.1 249.0 76.2 249.0 75.4C249.0 74.6 249.5 73.4 250.1 72.7C250.6 72.0 254.7 65.0 259.2 57.0C277.8 23.5 280.7 18.3 282.5 14.8C287.6 5.0 287.8 5.1 295.2 19.0C301.9 31.5 305.3 37.8 323.6 70.3C331.2 83.9 338.6 96.9 339.8 99.3C341.1 101.6 343.5 106.0 345.2 109.0C346.9 112.0 349.7 117.2 351.5 120.5C353.2 123.8 356.5 129.7 358.7 133.5C360.9 137.3 364.4 143.7 366.5 147.5C368.6 151.3 371.1 155.6 372.0 157.0C372.9 158.4 374.9 162.2 376.5 165.5C378.0 168.8 381.0 174.4 383.1 178.1C385.1 181.7 388.9 188.5 391.3 193.2C393.8 198.0 398.3 206.3 401.3 211.7C419.8 244.9 419.5 244.0 412.4 244.0C407.1 244.0 381.0 247.1 366.5 249.5C338.7 253.9 342.7 254.8 336.7 242.8C334.1 237.7 331.6 232.8 331.1 232.0C330.7 231.2 329.8 229.5 329.2 228.3C323.0 216.4 316.4 204.0 315.0 202.0C314.1 200.6 312.3 197.0 311.1 194.0C309.8 191.0 308.4 188.1 308.0 187.5C306.7 185.9 301.0 175.3 296.2 165.5C287.0 147.0 288.0 146.8 276.2 169.0C274.3 172.6 272.0 176.6 271.1 178.0C269.2 180.9 265.7 187.4 260.0 198.5C257.7 202.9 255.2 207.2 254.4 208.1C253.6 208.9 253.0 210.0 253.0 210.3C253.0 210.7 251.9 212.7 250.7 214.8C249.4 216.8 246.6 221.7 244.5 225.5C235.8 241.8 233.6 245.6 231.8 248.2C230.8 249.6 230.0 251.1 230.0 251.4C230.0 251.8 226.7 257.8 222.6 264.8C218.6 271.8 213.6 280.6 211.5 284.5C209.5 288.3 205.9 294.8 203.6 299.0C201.2 303.1 197.4 310.1 195.0 314.5C192.6 318.9 189.6 324.3 188.4 326.5C186.2 330.5 177.8 346.4 173.3 355.0C170.0 361.4 168.7 363.4 167.3 364.3C165.2 365.6 147.1 380.8 138.0 388.8C129.8 396.0 100.0 425.7 93.3 433.3C72.2 457.0 50.3 485.6 32.5 512.3C27.9 519.3 24.4 523.7 24.0 523.0C23.5 522.2 23.1 522.3 22.7 523.5C22.3 524.4 22.4 524.8 23.0 524.5C24.7 523.5 24.2 524.7 20.9 529.4C18.3 533.4 16.1 535.6 17.2 533.2ZM366.5 459.3C365.1 457.2 364.0 455.0 364.0 454.4C364.0 452.6 350.2 424.2 349.0 423.5C348.5 423.2 348.0 422.1 348.0 421.0C348.0 418.9 335.1 391.7 333.8 391.2C333.4 391.0 333.0 390.2 333.0 389.5C333.0 388.7 331.2 384.5 329.0 380.1C326.8 375.7 325.0 371.9 325.0 371.6C325.0 371.3 322.3 365.4 318.9 358.4C314.6 349.4 313.2 345.4 313.9 344.7C315.4 343.2 328.4 338.8 348.5 332.9C357.9 330.2 367.1 327.5 369.1 326.9C376.1 324.8 376.2 324.9 386.4 346.0C391.6 356.7 396.3 366.0 396.8 366.6C397.3 367.2 403.1 378.6 409.6 392.0C416.2 405.4 426.5 426.5 432.6 438.9C440.2 454.3 443.4 461.7 442.6 462.2C442.0 462.6 425.2 463.0 405.3 463.0L369.1 463.0 L366.5 459.3Z';
+  const MARK_BLACK = 'M18.0 534.5C19.8 531.2 21.9 527.8 22.6 526.9C24.2 525.1 24.5 523.6 23.0 524.5C22.4 524.8 22.3 524.4 22.7 523.5C23.1 522.3 23.5 522.2 24.0 523.0C24.4 523.7 27.9 519.3 32.5 512.3C124.4 373.9 239.2 295.5 386.6 270.5C401.4 268.0 429.9 264.5 430.4 265.1C430.5 265.3 433.3 270.2 436.5 276.0C439.7 281.8 444.0 289.5 446.1 293.2L449.9 299.9 L446.7 300.4C444.9 300.7 440.4 301.2 436.5 301.5C417.1 303.2 385.8 308.6 361.4 314.6C338.0 320.2 296.3 334.1 295.3 336.5C294.8 337.9 303.6 357.1 338.1 429.7L359.5 475.0 L421.7 475.0C500.7 475.0 509.3 474.1 525.9 464.3C562.0 442.8 558.7 387.4 520.3 373.0C506.9 367.9 504.8 367.8 449.0 367.3L396.5 366.8 L386.7 346.6L376.9 326.5 L381.2 325.2C401.3 319.3 454.1 312.0 477.8 312.0C518.2 311.9 540.0 294.7 540.0 263.0C540.0 230.1 523.6 221.1 463.3 221.0L430.2 221.0 L424.7 210.8C421.6 205.1 414.9 192.3 409.7 182.2L400.2 163.9 L457.8 164.3C526.4 164.8 532.9 165.7 555.0 177.1C614.3 207.7 618.1 296.5 561.7 333.7L556.9 336.8 L564.2 340.5C642.3 380.3 625.1 500.0 537.8 524.0C518.0 529.4 521.2 529.2 423.0 529.7L331.5 530.1 L327.6 521.3C323.9 512.9 294.8 450.0 264.9 385.6C257.2 369.2 251.0 355.4 251.0 354.9C251.0 353.0 247.5 354.3 230.3 362.9C155.9 399.9 82.6 458.9 25.5 528.0C14.4 541.4 14.0 541.7 18.0 534.5Z';
+
+  function markSprite() {
+    return '<svg class="visually-hidden" width="0" height="0" aria-hidden="true" focusable="false"><defs>' +
+      '<linearGradient id="abGold" x1="0.1" y1="1" x2="0.65" y2="0"><stop offset="0" stop-color="#B8860B"/><stop offset="0.5" stop-color="#E8B923"/><stop offset="1" stop-color="#FFD42E"/></linearGradient></defs>' +
+      '<symbol id="ab-mark" viewBox="0 0 630 550"><path fill="url(#abGold)" fill-rule="evenodd" d="' + MARK_GOLD + '"/>' +
+      '<path fill="currentColor" fill-rule="evenodd" d="' + MARK_BLACK + '"/></symbol></svg>';
   }
-  function brandLockup(cls) {
-    return '<a class="brand' + (cls ? ' ' + cls : '') + '" href="#/" aria-label="Apex Bee home">' + brandMark() + '<span class="brand__name">Apex Bee</span></a>';
+  function brandMark() {
+    return '<span class="brand__mark"><svg viewBox="0 0 630 550" aria-hidden="true" focusable="false"><use href="#ab-mark"/></svg></span>';
+  }
+  function brandLockup() {
+    return '<a class="brand" href="#/" aria-label="Apex Bee home">' + brandMark() + '<span class="brand__name">Apex Bee</span></a>';
   }
 
   /* --------------------------------------------------------------- SERVICES */
@@ -230,11 +241,27 @@
     ['Does the contact form send an email?', 'This website is static. Unless a form service has been connected, the form prepares your message and lets you send it through WhatsApp or email.']
   ];
 
+  /* Brand-building framework (from the Apex Bee process note) */
+  const VISION = 'To be Africa\u2019s most impactful ecosystem, raising a generation of innovators, transforming businesses, and building solutions that shape the future.';
+  const MISSION = 'To empower individuals, businesses, and communities with knowledge, technology, and systems that create sustainable growth and generational impact.';
+  const FRAMEWORK = [
+    ['Information', 'Informed decisions start with the right information. Without it, a business keeps working hard without tangible results; with it, owners can choose a direction and commit to it with confidence.'],
+    ['Access', 'A business needs access to everything that sustains and grows it: the resources to promote its products and services, create awareness, and obtain the goods and services it depends on.'],
+    ['Fundamental Laws', 'Clear, independent principles give a business a solid foundation. Setting them early provides direction and a consistent basis for its operations and growth.'],
+    ['Strategy', 'Progress depends largely on the quality of the support system built around a business. Without a strategy, there is a limit to how far it can grow and what it can achieve.'],
+    ['Positioning', 'Positioning places a business where its intended audience can find it. Even a strong strategy will not reach audiences whose needs, interests or desires do not match the offer, and that is often a question of fit rather than affordability.'],
+    ['Language', 'How a business speaks to its audience matters. Clear, consistent communication carries the message, builds connection and makes the value of its products and services plain.'],
+    ['Visual Identity', 'The digital space demands more than cheap publicity. A strong visual identity presents the business professionally and makes it more recognisable in a competitive market.'],
+    ['Complete Brand Foundation', 'A brand foundation is a system: structured elements working together to produce predictable outcomes. With the essentials in place, the business gains consistency and a base for long-term growth.'],
+    ['Evolutionary Blueprint', 'Markets change, and audiences lose interest in what has become familiar. New ideas, ongoing reasons to engage and steady reminders keep a business relevant and memorable.']
+  ];
+
   /* slug, label, icon */
   const NAV = [
     ['', 'Home', 'home'], ['about', 'About', 'user'], ['services', 'Services', 'layers'],
     ['portfolio', 'Work', 'briefcase'], ['process', 'Process', 'workflow'], ['contact', 'Contact', 'mail']
   ];
+  const NAV_MORE = [['faq', 'FAQ', 'help'], ['privacy-policy', 'Privacy Policy', 'shield'], ['terms', 'Terms of Use', 'file']];
 
   const MARQUEE_ITEMS = [CONFIG.slogan].concat(SERVICES.map(function (s) { return s.title; }));
 
@@ -315,6 +342,15 @@
       '<span class="hero__tag">' + esc(CONFIG.tag) + '</span></div>';
   }
 
+  /* Marquee: placed right after the "Hello, we're Apex Bee" caption */
+  function marqueeHtml() {
+    const group = function (hidden) {
+      return '<div class="marquee__group"' + (hidden ? ' aria-hidden="true"' : '') + '>' +
+        MARQUEE_ITEMS.map(function (t) { return '<span class="marquee__item">' + t + '</span>'; }).join('') + '</div>';
+    };
+    return '<div class="hero__marquee marquee" role="presentation"><div class="marquee__track">' + group(false) + group(true) + '</div></div>';
+  }
+
   /* ------------------------------------------------------------------ PAGES */
   function pageHome() {
     return {
@@ -329,7 +365,7 @@
         '<div class="hero__actions reveal reveal--d3">' +
         '<a class="btn btn--gold" href="#/services">' + icon('layers') + 'Our services' + icon('arrow') + '</a>' +
         '<a class="btn btn--ghost" href="#/contact">' + icon('mail') + 'Start a project' + icon('arrow') + '</a></div>' +
-        '</div>' + portraitHtml() + '</div></section>' +
+        '</div>' + portraitHtml() + marqueeHtml() + '</div></section>' +
 
         '<section class="section section--light"><div class="container split">' +
         '<div class="split__body">' +
@@ -554,8 +590,14 @@
     };
   }
 
+  function frameworkSteps(lawsTitle) {
+    return '<div class="steps">' + FRAMEWORK.map(function (s, i) {
+      return '<div class="step"><h3>' + (i === 2 ? lawsTitle : s[0]) + '</h3><p>' + s[1] + '</p></div>';
+    }).join('') + '</div>';
+  }
+
   function pageProcess() {
-    const steps = [
+    const delivery = [
       ['Discovery and brief', 'We learn about your business, audience and goals, and agree what success looks like for the project.'],
       ['Direction and scope', 'We propose an approach and confirm what will be delivered, so expectations are clear from the start.'],
       ['Creation', 'We design, edit or build, sharing progress at agreed points so you can guide the work.'],
@@ -564,13 +606,32 @@
     ];
     return {
       title: 'Process | ' + CONFIG.brand,
-      desc: 'How Apex Bee works: from discovery and scope to creation, review and delivery.',
+      desc: 'The Apex Bee vision, mission and nine-step brand-building process for startups, small businesses and established brands.',
       html:
-        pageHero([['Home', '#/'], ['Process']], 'Process', 'A clear path from <em>idea to delivery.</em>',
-          'Every project is different, but the way we work stays consistent: clear scope, regular check-ins and careful delivery.') +
-        '<section class="section section--light"><div class="container"><div class="steps">' +
-        steps.map(function (s) { return '<div class="step reveal"><h3>' + s[0] + '</h3><p>' + s[1] + '</p></div>'; }).join('') +
+        pageHero([['Home', '#/'], ['Process']], 'Process', 'A clear process, <em>built on a clear purpose.</em>',
+          'Our vision and mission set the direction. Our process turns it into practical steps for startups, small businesses and established brands.') +
+
+        '<section class="section section--dark"><div class="container">' +
+        sectionHead('Vision and mission', 'Where we are going, <em>and why.</em>') +
+        '<div class="statements">' +
+        '<div class="statement reveal"><h3>Vision</h3><p>' + VISION + '</p></div>' +
+        '<div class="statement reveal reveal--d1"><h3>Mission</h3><p>' + MISSION + '</p></div>' +
         '</div></div></section>' +
+
+        '<section class="section section--light"><div class="container">' +
+        sectionHead('Brand-building process', 'Nine steps to a <em>solid brand foundation.</em>', 'The same nine steps guide every business we work with. Choose the track that fits where you are.') +
+        '<div class="tabs reveal" role="tablist" aria-label="Choose a business track">' +
+        '<button class="tab" type="button" role="tab" id="tab-startup" aria-controls="panel-startup" aria-selected="true">Startups and small businesses</button>' +
+        '<button class="tab" type="button" role="tab" id="tab-big" aria-controls="panel-big" aria-selected="false" tabindex="-1">Big brand businesses</button></div>' +
+        '<div class="tabpanel" role="tabpanel" id="panel-startup" aria-labelledby="tab-startup">' + frameworkSteps('Fundamental Laws of Startup Businesses') + '</div>' +
+        '<div class="tabpanel" role="tabpanel" id="panel-big" aria-labelledby="tab-big" hidden>' + frameworkSteps('Fundamental Laws of Business') + '</div>' +
+        '</div></section>' +
+
+        '<section class="section section--silk"><div class="container">' +
+        sectionHead('Project delivery', 'How a project <em>runs day to day.</em>', 'Every project is different, but the way we work stays consistent: clear scope, regular check-ins and careful delivery.') +
+        '<div class="steps">' + delivery.map(function (s) { return '<div class="step reveal"><h3>' + s[0] + '</h3><p>' + s[1] + '</p></div>'; }).join('') + '</div>' +
+        '</div></section>' +
+
         '<section class="section section--dark"><div class="container">' +
         sectionHead('Working together', 'What you can <em>expect.</em>') +
         factGrid([
@@ -578,7 +639,31 @@
           ['Agreed scope', 'Deliverables, revisions and costs are confirmed before work begins.'],
           ['Careful handover', 'You receive organised files or a working product, with guidance on using them.']
         ]) + '</div></section>' +
-        ctaBand('Start with <em>a conversation.</em>', 'Share your goals and we will suggest a sensible first step.', '#/contact', 'Contact us')
+
+        ctaBand('Start with <em>a conversation.</em>', 'Share your goals and we will suggest a sensible first step.', '#/contact', 'Contact us'),
+      mount: function (root) {
+        const tabs = $$('.tab', root);
+        function select(tab, focus) {
+          tabs.forEach(function (t) {
+            const on = t === tab;
+            t.setAttribute('aria-selected', String(on));
+            t.tabIndex = on ? 0 : -1;
+            $('#' + t.getAttribute('aria-controls'), root).hidden = !on;
+          });
+          if (focus) tab.focus();
+        }
+        tabs.forEach(function (t, i) {
+          t.addEventListener('click', function () { select(t, false); });
+          t.addEventListener('keydown', function (e) {
+            let next = null;
+            if (e.key === 'ArrowRight') next = tabs[(i + 1) % tabs.length];
+            if (e.key === 'ArrowLeft') next = tabs[(i - 1 + tabs.length) % tabs.length];
+            if (e.key === 'Home') next = tabs[0];
+            if (e.key === 'End') next = tabs[tabs.length - 1];
+            if (next) { e.preventDefault(); select(next, true); }
+          });
+        });
+      }
     };
   }
 
@@ -739,46 +824,47 @@
   }
 
   /* ----------------------------------------------------------------- SHELL */
-  let main, sidebar, closeBtn, announcer, revealObserver;
-  const state = { open: false, lastFocus: null, lastSubmit: 0, firstRender: true };
-
-  function marqueeGroup(hidden) {
-    return '<div class="marquee__group"' + (hidden ? ' aria-hidden="true"' : '') + '>' +
-      MARQUEE_ITEMS.map(function (t) { return '<span class="marquee__item">' + t + '</span>'; }).join('') + '</div>';
-  }
+  let main, menu, menuNav, toggleBtn, closeBtn, announcer, revealObserver;
+  /* mode: 'closed' | 'full' (full-screen menu) | 'rail' (slim icon rail) */
+  const state = { mode: 'closed', lastFocus: null, lastSubmit: 0, firstRender: true };
 
   function buildFooter() {
     const year = new Date().getFullYear();
-    const waLinks = CONFIG.whatsapp.map(function (w) {
-      return '<li><a ' + ext(wa(w.number)) + '>' + brandIcon('whatsapp') + '<span>' + w.label + '</span></a></li>';
-    }).join('');
+    const contactItem = function (iconHtml, label, value, attrs) {
+      return '<li><a class="footer__contact-item" ' + attrs + '><span class="footer__contact-icon">' + iconHtml + '</span>' +
+        '<span class="footer__contact-text"><span class="footer__contact-label">' + label + '</span><span class="footer__contact-value">' + value + '</span></span></a></li>';
+    };
     return '<footer class="site-footer"><div class="container">' +
       '<div class="footer__cta"><h2 class="footer__cta-title display-2">Let\u2019s build <em>something sharp.</em></h2>' +
       '<div class="footer__cta-actions">' +
       '<a class="btn btn--gold" href="#/contact">Start a project' + icon('arrow') + '</a>' +
       '<a class="btn btn--ghost" ' + ext(wa(CONFIG.whatsapp[0].number, 'Hello Apex Bee, I would like to discuss a project.')) + '>' + brandIcon('whatsapp') + 'WhatsApp us</a></div></div>' +
 
-      '<div class="footer__main">' +
-      '<div class="footer__brand">' + brandLockup('') +
+      '<div class="footer__top">' +
+      '<div class="footer__brand"><a class="footer__logo" href="#/" aria-label="Apex Bee home"><img src="' + CONFIG.logo + '" alt="Apex Bee logo" width="190" height="190" loading="lazy"></a>' +
       '<p class="footer__about">' + CONFIG.slogan + '. A creative and technology company for video, design, web, software and automation.</p>' +
       '<div class="footer__socials">' +
-      CONFIG.whatsapp.map(function (w, i) {
+      CONFIG.whatsapp.map(function (w) {
         return '<a class="social-link" ' + ext(wa(w.number)) + ' aria-label="WhatsApp ' + w.label + '">' + brandIcon('whatsapp') + '</a>';
       }).join('') +
       '<a class="social-link" href="mailto:' + CONFIG.email + '" aria-label="Email ' + CONFIG.email + '">' + brandIcon('gmail') + '</a>' +
       '<a class="social-link" ' + ext(CONFIG.x.url) + ' aria-label="Apex Bee on X">' + brandIcon('x') + '</a></div></div>' +
 
+      '<div class="footer__contact"><h2 class="footer__title">Contact</h2><ul class="footer__contact-grid">' +
+      CONFIG.whatsapp.map(function (w, i) {
+        return contactItem(brandIcon('whatsapp'), 'WhatsApp ' + (i + 1), w.label, ext(wa(w.number, 'Hello Apex Bee, I would like to discuss a project.')));
+      }).join('') +
+      contactItem(brandIcon('gmail'), 'Email', CONFIG.email, 'href="mailto:' + CONFIG.email + '"') +
+      contactItem(brandIcon('x'), 'X', CONFIG.x.handle, ext(CONFIG.x.url)) +
+      '</ul></div></div>' +
+
+      '<div class="footer__links">' +
       '<div><h2 class="footer__title">Company</h2><ul class="footer__list">' +
       [['', 'Home'], ['about', 'About'], ['services', 'Services'], ['portfolio', 'Work'], ['process', 'Process'], ['faq', 'FAQ'], ['contact', 'Contact']].map(function (l) {
         return '<li><a href="#/' + l[0] + '">' + l[1] + '</a></li>';
       }).join('') + '</ul></div>' +
-
-      '<div><h2 class="footer__title">Services</h2><ul class="footer__list">' +
+      '<div><h2 class="footer__title">Services</h2><ul class="footer__list footer__list--cols">' +
       SERVICES.map(function (s) { return '<li><a href="#/' + s.slug + '">' + s.title + '</a></li>'; }).join('') + '</ul></div>' +
-
-      '<div><h2 class="footer__title">Contact</h2><ul class="footer__contact">' + waLinks +
-      '<li><a href="mailto:' + CONFIG.email + '">' + brandIcon('gmail') + '<span>' + CONFIG.email + '</span></a></li>' +
-      '<li><a ' + ext(CONFIG.x.url) + '>' + brandIcon('x') + '<span>' + CONFIG.x.handle + '</span></a></li></ul></div>' +
       '</div>' +
 
       '<div class="footer__bottom"><p>&copy; ' + year + ' ' + CONFIG.brand + '. All rights reserved.</p>' +
@@ -786,103 +872,120 @@
       '</div></footer>';
   }
 
+  function buildMenu() {
+    const link = function (n) {
+      return '<a class="menu__link" href="#/' + n[0] + '" data-key="' + n[0] + '" title="' + n[1] + '">' + icon(n[2]) + '<span class="menu__label">' + n[1] + '</span></a>';
+    };
+    return '<aside class="menu" id="menu" aria-label="Menu" aria-hidden="true">' +
+      '<div class="menu__head">' +
+      '<button class="menu__toggle" type="button" data-menu-toggle aria-label="Collapse menu to icons" title="Collapse menu to icons"><span id="toggleIcon">' + icon('panelClose') + '</span></button>' +
+      '<div class="menu__brand menu__label"><strong>Apex Bee</strong><small>Navigation</small></div>' +
+      '<button class="menu__close menu__label" type="button" data-close-menu aria-label="Close menu">' + icon('close') + '</button></div>' +
+      '<div class="menu__divider"></div>' +
+      '<nav class="menu__nav" id="menuNav" aria-label="Pages">' +
+      '<div class="menu__group"><p class="menu__group-title">Main menu</p>' + NAV.map(link).join('') + '</div>' +
+      '<div class="menu__group"><p class="menu__group-title">More</p>' + NAV_MORE.map(link).join('') + '</div>' +
+      '</nav>' +
+      '<button class="menu__more" type="button" data-menu-more aria-label="Scroll menu down">' + icon('down') + '</button>' +
+      '<div class="menu__foot">' +
+      '<a class="menu__cta menu__cta--wa" ' + ext(wa(CONFIG.whatsapp[0].number, 'Hello Apex Bee, I would like to discuss a project.')) + ' title="Chat on WhatsApp">' + brandIcon('whatsapp') + '<span class="menu__label">Chat on WhatsApp</span></a>' +
+      '<a class="menu__cta menu__cta--mail" href="mailto:' + CONFIG.email + '" title="Email us">' + brandIcon('gmail') + '<span class="menu__label">Email us</span></a>' +
+      '</div></aside>';
+  }
+
   function buildShell() {
     const navItems = NAV.map(function (n) {
       return '<li><a class="nav__link" href="#/' + n[0] + '" data-key="' + n[0] + '">' + icon(n[2]) + n[1] + '</a></li>';
     }).join('');
 
-    const sideLinks = NAV.map(function (n) {
-      return '<li><a class="sidebar__link" href="#/' + n[0] + '" data-key="' + n[0] + '">' + icon(n[2]) + n[1] + '</a></li>';
-    }).join('');
-
-    const sideServices = SERVICES.map(function (s) {
-      return '<a href="#/' + s.slug + '" data-slug="' + s.slug + '">' + s.title + '</a>';
-    }).join('');
-
-    const sideMore = [['faq', 'FAQ'], ['privacy-policy', 'Privacy Policy'], ['terms', 'Terms of Use']].map(function (l) {
-      return '<a href="#/' + l[0] + '" data-slug="' + l[0] + '">' + l[1] + '</a>';
-    }).join('');
-
-    return '' +
+    return markSprite() +
       '<a class="skip-link" href="#/" data-skip>Skip to content</a>' +
-      '<div class="marquee" role="presentation"><div class="marquee__track">' + marqueeGroup(false) + marqueeGroup(true) + '</div></div>' +
-
       '<header class="site-header"><div class="container site-header__inner">' +
-      brandLockup('') +
+      brandLockup() +
       '<nav class="nav" aria-label="Primary"><ul class="nav__list">' + navItems + '</ul></nav>' +
       '<div class="site-header__actions"><a class="btn btn--gold btn--sm" href="#/contact">Start a project</a>' +
-      '<button class="hamburger" type="button" data-open-menu aria-controls="sidebar" aria-expanded="false" aria-label="Open menu">' +
+      '<button class="hamburger" type="button" data-open-menu aria-controls="menu" aria-expanded="false" aria-label="Open menu">' +
       '<span class="hamburger__line"></span><span class="hamburger__line"></span><span class="hamburger__line"></span></button></div>' +
       '</div></header>' +
-
       '<div class="overlay" id="overlay"></div>' +
-      '<aside class="sidebar" id="sidebar" aria-label="Menu" aria-hidden="true">' +
-      '<div class="sidebar__head"><span class="sidebar__label">Menu</span>' +
-      '<button class="hamburger" type="button" data-close-menu aria-expanded="true" aria-label="Close menu">' +
-      '<span class="hamburger__line"></span><span class="hamburger__line"></span><span class="hamburger__line"></span></button></div>' +
-      '<div class="sidebar__body"><ul class="sidebar__list">' + sideLinks + '</ul>' +
-      '<div class="sidebar__sub"><p class="sidebar__sub-title">Services</p>' + sideServices + '</div>' +
-      '<div class="sidebar__sub"><p class="sidebar__sub-title">More</p>' + sideMore + '</div></div>' +
-      '<div class="sidebar__foot"><a class="btn btn--gold" ' + ext(wa(CONFIG.whatsapp[0].number, 'Hello Apex Bee, I would like to discuss a project.')) + '>' + brandIcon('whatsapp') + 'Chat on WhatsApp</a>' +
-      '<a class="btn btn--ghost" href="mailto:' + CONFIG.email + '">' + brandIcon('gmail') + 'Email us</a></div>' +
-      '</aside>' +
-
+      buildMenu() +
       '<main id="main" tabindex="-1"></main>' +
       buildFooter() +
       '<div class="visually-hidden" id="announcer" aria-live="polite" role="status"></div>';
   }
 
-  /* ------------------------------------------------------------- INTERACTION */
-  function setExpanded(open) {
+  /* ------------------------------------------------------------- MENU LOGIC */
+  function updateMore() {
+    if (!menuNav) return;
+    const more = menuNav.scrollHeight - menuNav.scrollTop - menuNav.clientHeight > 8;
+    menu.classList.toggle('can-scroll', more);
+  }
+
+  function setMode(mode) {
+    const prev = state.mode;
+    if (mode === prev) return;
+    state.mode = mode;
+    const open = mode !== 'closed';
+    const rail = mode === 'rail';
+
+    menu.classList.toggle('is-open', open);
+    menu.classList.toggle('is-rail', rail);
+    document.body.classList.toggle('nav-open', mode === 'full');
+    menu.inert = !open;
+    menu.setAttribute('aria-hidden', String(!open));
+
     $$('[data-open-menu]').forEach(function (b) {
       b.setAttribute('aria-expanded', String(open));
       b.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
     });
-  }
 
-  function openMenu() {
-    if (state.open) return;
-    state.open = true;
-    state.lastFocus = document.activeElement;
-    document.body.classList.add('nav-open');
-    sidebar.inert = false;
-    sidebar.setAttribute('aria-hidden', 'false');
-    setExpanded(true);
-    requestAnimationFrame(function () { closeBtn.focus({ preventScroll: true }); });
+    const label = rail ? 'Expand menu' : 'Collapse menu to icons';
+    toggleBtn.setAttribute('aria-label', label);
+    toggleBtn.title = label;
+    $('#toggleIcon', toggleBtn).innerHTML = icon(rail ? 'panelOpen' : 'panelClose');
+
+    if (prev === 'closed' && open) {
+      state.lastFocus = document.activeElement;
+      requestAnimationFrame(function () { (rail ? toggleBtn : closeBtn).focus({ preventScroll: true }); });
+    }
+    setTimeout(updateMore, 400);
   }
 
   function closeMenu(restoreFocus) {
-    if (!state.open) return;
-    state.open = false;
-    document.body.classList.remove('nav-open');
-    sidebar.inert = true;
-    sidebar.setAttribute('aria-hidden', 'true');
-    setExpanded(false);
+    if (state.mode === 'closed') return;
+    setMode('closed');
     if (restoreFocus && state.lastFocus && state.lastFocus.focus) state.lastFocus.focus({ preventScroll: true });
   }
 
   function bindShell() {
     main = $('#main');
-    sidebar = $('#sidebar');
-    closeBtn = $('[data-close-menu]', sidebar);
+    menu = $('#menu');
+    menuNav = $('#menuNav');
+    toggleBtn = $('[data-menu-toggle]', menu);
+    closeBtn = $('[data-close-menu]', menu);
     announcer = $('#announcer');
-    sidebar.inert = true;
+    menu.inert = true;
+
+    menuNav.addEventListener('scroll', updateMore, { passive: true });
+    window.addEventListener('resize', updateMore);
 
     document.addEventListener('click', function (e) {
       const t = e.target.closest ? e.target : null;
       if (!t) return;
-      if (t.closest('[data-open-menu]')) { state.open ? closeMenu(true) : openMenu(); return; }
+      if (t.closest('[data-open-menu]')) { state.mode === 'closed' ? setMode('full') : closeMenu(true); return; }
+      if (t.closest('[data-menu-toggle]')) { setMode(state.mode === 'full' ? 'rail' : 'full'); return; }
       if (t.closest('[data-close-menu]')) { closeMenu(true); return; }
+      if (t.closest('[data-menu-more]')) { menuNav.scrollBy({ top: 160, behavior: reduceMotion.matches ? 'auto' : 'smooth' }); return; }
       if (t.closest('.overlay')) { closeMenu(true); return; }
       if (t.closest('[data-skip]')) { e.preventDefault(); main.focus({ preventScroll: false }); return; }
-      if (state.open && t.closest('.sidebar a[href^="#/"]')) closeMenu(false);
+      if (state.mode === 'full' && t.closest('.menu a[href^="#/"]')) closeMenu(false);
     });
 
     document.addEventListener('keydown', function (e) {
-      if (!state.open) return;
+      if (state.mode === 'closed') return;
       if (e.key === 'Escape') { e.preventDefault(); closeMenu(true); return; }
-      if (e.key === 'Tab') {
-        const f = $$('a[href], button:not([disabled])', sidebar).filter(function (el) { return el.offsetParent !== null; });
+      if (e.key === 'Tab' && state.mode === 'full') {
+        const f = $$('a[href], button:not([disabled])', menu).filter(function (el) { return el.offsetParent !== null; });
         if (!f.length) return;
         const first = f[0], last = f[f.length - 1];
         if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
@@ -896,14 +999,10 @@
     else if (desktop.addListener) desktop.addListener(onChange);
   }
 
-  function setActive(key, slug) {
-    $$('.nav__link, .sidebar__link').forEach(function (a) {
-      const on = key !== null && a.getAttribute('data-key') === key;
-      a.classList.toggle('is-active', on);
-      if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
-    });
-    $$('.sidebar__sub a').forEach(function (a) {
-      const on = a.getAttribute('data-slug') === slug;
+  function setActive(key) {
+    $$('.nav__link, .menu__link').forEach(function (a) {
+      const k = a.getAttribute('data-key');
+      const on = key !== null && k === key;
       a.classList.toggle('is-active', on);
       if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
     });
@@ -935,7 +1034,8 @@
     const page = result.page;
     main.innerHTML = page.html;
     setMeta(page.title, page.desc);
-    setActive(result.key, slug);
+    /* faq / privacy / terms live in the "More" group; match them by slug */
+    setActive(result.key === null || result.key === 'faq' || result.key === 'privacy-policy' || result.key === 'terms' ? (result.key || null) : result.key);
     if (page.mount) page.mount(main);
     initReveal(main);
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
