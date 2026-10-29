@@ -2,12 +2,19 @@
    APEX BEE - app.js
    Single JavaScript file: page content, hash router, shell (floating header,
    icon menu, footer), splash, reveals, tabs, contact form.
+
    Vanilla JS only. No dependencies.
 
    ROUTES (hash based)   #/  #/about  #/services  #/<service-slug>
                          #/portfolio  #/project-details  #/process
                          #/contact  #/faq  #/privacy-policy  #/terms
                          anything else -> 404 page
+
+   SEO: every route updates <title>, <meta description>, canonical link,
+   Open Graph, Twitter Card, and JSON-LD (WebPage / Service / FAQ /
+   BreadcrumbList). Canonical URLs are extensionless clean paths so Google
+   can index https://www.apex-bee.com.ng/services/ etc. (mirror these as
+   real static files or use a prerender step).
 
    EDIT HERE: CONFIG (contacts, portrait photo, optional form endpoint) and
    WORK (add verified portfolio projects when you have them).
@@ -20,8 +27,8 @@
     brand: 'Apex Bee',
     slogan: 'Everything Your Brand Needs',
     logo: 'apex.jpg',
-    /* Optional: put a photo in the same folder (e.g. 'portrait.jpg') and set it
-       here to replace the logo inside the hero circle. */
+    siteUrl: 'https://www.apex-bee.com.ng',   /* no trailing slash */
+    ogImage: 'https://www.apex-bee.com.ng/apex.jpg',
     portrait: '',
     tag: 'Hello, we\u2019re Apex Bee.',
     email: 'apexbee08@gmail.com',
@@ -30,9 +37,6 @@
       { number: '2349019104417', label: '+234 901 910 4417' }
     ],
     x: { handle: '@apex_bee_', url: 'https://x.com/apex_bee_' },
-    /* Optional: paste a Formspree / Web3Forms / similar endpoint URL to send the
-       contact form straight to an inbox. Leave empty to use the WhatsApp/email
-       fallback. */
     formEndpoint: '',
     cooldownMs: 30000,
     legalDate: '24 October 2026'
@@ -74,9 +78,6 @@
     return '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="' + BRAND_ICONS[name] + '"/></svg>';
   }
 
-  /* Logo mark: vector trace of the AB monogram in apex.jpg. Gold uses a
-     gradient, the B and swoosh use currentColor (black on light surfaces).
-     Defined once as a <symbol> and reused with <use>. */
   const MARK_GOLD = 'M17.2 533.2C18.3 531.1 20.9 525.2 21.8 523.0C25.4 514.2 29.6 505.3 30.7 503.9C31.4 503.1 32.0 501.8 32.0 501.1C32.0 500.4 34.3 495.0 37.1 489.2C40.0 483.3 43.5 475.8 45.0 472.5C46.6 469.2 52.5 456.8 58.2 445.0C64.0 433.2 71.6 417.4 75.1 410.0C78.6 402.6 92.6 374.5 106.1 347.5C128.9 302.1 136.2 287.8 154.8 251.9C158.6 244.5 166.1 229.9 171.5 219.5C176.9 209.1 182.0 199.2 183.0 197.5C185.1 194.0 190.5 183.9 198.3 169.0C204.6 156.9 208.1 150.3 213.6 140.5C220.0 128.9 221.5 126.2 232.0 106.5C234.3 102.1 237.5 96.5 238.9 94.0C240.4 91.5 242.9 86.9 244.5 83.7C246.1 80.5 247.8 77.7 248.2 77.4C248.6 77.1 249.0 76.2 249.0 75.4C249.0 74.6 249.5 73.4 250.1 72.7C250.6 72.0 254.7 65.0 259.2 57.0C277.8 23.5 280.7 18.3 282.5 14.8C287.6 5.0 287.8 5.1 295.2 19.0C301.9 31.5 305.3 37.8 323.6 70.3C331.2 83.9 338.6 96.9 339.8 99.3C341.1 101.6 343.5 106.0 345.2 109.0C346.9 112.0 349.7 117.2 351.5 120.5C353.2 123.8 356.5 129.7 358.7 133.5C360.9 137.3 364.4 143.7 366.5 147.5C368.6 151.3 371.1 155.6 372.0 157.0C372.9 158.4 374.9 162.2 376.5 165.5C378.0 168.8 381.0 174.4 383.1 178.1C385.1 181.7 388.9 188.5 391.3 193.2C393.8 198.0 398.3 206.3 401.3 211.7C419.8 244.9 419.5 244.0 412.4 244.0C407.1 244.0 381.0 247.1 366.5 249.5C338.7 253.9 342.7 254.8 336.7 242.8C334.1 237.7 331.6 232.8 331.1 232.0C330.7 231.2 329.8 229.5 329.2 228.3C323.0 216.4 316.4 204.0 315.0 202.0C314.1 200.6 312.3 197.0 311.1 194.0C309.8 191.0 308.4 188.1 308.0 187.5C306.7 185.9 301.0 175.3 296.2 165.5C287.0 147.0 288.0 146.8 276.2 169.0C274.3 172.6 272.0 176.6 271.1 178.0C269.2 180.9 265.7 187.4 260.0 198.5C257.7 202.9 255.2 207.2 254.4 208.1C253.6 208.9 253.0 210.0 253.0 210.3C253.0 210.7 251.9 212.7 250.7 214.8C249.4 216.8 246.6 221.7 244.5 225.5C235.8 241.8 233.6 245.6 231.8 248.2C230.8 249.6 230.0 251.1 230.0 251.4C230.0 251.8 226.7 257.8 222.6 264.8C218.6 271.8 213.6 280.6 211.5 284.5C209.5 288.3 205.9 294.8 203.6 299.0C201.2 303.1 197.4 310.1 195.0 314.5C192.6 318.9 189.6 324.3 188.4 326.5C186.2 330.5 177.8 346.4 173.3 355.0C170.0 361.4 168.7 363.4 167.3 364.3C165.2 365.6 147.1 380.8 138.0 388.8C129.8 396.0 100.0 425.7 93.3 433.3C72.2 457.0 50.3 485.6 32.5 512.3C27.9 519.3 24.4 523.7 24.0 523.0C23.5 522.2 23.1 522.3 22.7 523.5C22.3 524.4 22.4 524.8 23.0 524.5C24.7 523.5 24.2 524.7 20.9 529.4C18.3 533.4 16.1 535.6 17.2 533.2ZM366.5 459.3C365.1 457.2 364.0 455.0 364.0 454.4C364.0 452.6 350.2 424.2 349.0 423.5C348.5 423.2 348.0 422.1 348.0 421.0C348.0 418.9 335.1 391.7 333.8 391.2C333.4 391.0 333.0 390.2 333.0 389.5C333.0 388.7 331.2 384.5 329.0 380.1C326.8 375.7 325.0 371.9 325.0 371.6C325.0 371.3 322.3 365.4 318.9 358.4C314.6 349.4 313.2 345.4 313.9 344.7C315.4 343.2 328.4 338.8 348.5 332.9C357.9 330.2 367.1 327.5 369.1 326.9C376.1 324.8 376.2 324.9 386.4 346.0C391.6 356.7 396.3 366.0 396.8 366.6C397.3 367.2 403.1 378.6 409.6 392.0C416.2 405.4 426.5 426.5 432.6 438.9C440.2 454.3 443.4 461.7 442.6 462.2C442.0 462.6 425.2 463.0 405.3 463.0L369.1 463.0 L366.5 459.3Z';
   const MARK_BLACK = 'M18.0 534.5C19.8 531.2 21.9 527.8 22.6 526.9C24.2 525.1 24.5 523.6 23.0 524.5C22.4 524.8 22.3 524.4 22.7 523.5C23.1 522.3 23.5 522.2 24.0 523.0C24.4 523.7 27.9 519.3 32.5 512.3C124.4 373.9 239.2 295.5 386.6 270.5C401.4 268.0 429.9 264.5 430.4 265.1C430.5 265.3 433.3 270.2 436.5 276.0C439.7 281.8 444.0 289.5 446.1 293.2L449.9 299.9 L446.7 300.4C444.9 300.7 440.4 301.2 436.5 301.5C417.1 303.2 385.8 308.6 361.4 314.6C338.0 320.2 296.3 334.1 295.3 336.5C294.8 337.9 303.6 357.1 338.1 429.7L359.5 475.0 L421.7 475.0C500.7 475.0 509.3 474.1 525.9 464.3C562.0 442.8 558.7 387.4 520.3 373.0C506.9 367.9 504.8 367.8 449.0 367.3L396.5 366.8 L386.7 346.6L376.9 326.5 L381.2 325.2C401.3 319.3 454.1 312.0 477.8 312.0C518.2 311.9 540.0 294.7 540.0 263.0C540.0 230.1 523.6 221.1 463.3 221.0L430.2 221.0 L424.7 210.8C421.6 205.1 414.9 192.3 409.7 182.2L400.2 163.9 L457.8 164.3C526.4 164.8 532.9 165.7 555.0 177.1C614.3 207.7 618.1 296.5 561.7 333.7L556.9 336.8 L564.2 340.5C642.3 380.3 625.1 500.0 537.8 524.0C518.0 529.4 521.2 529.2 423.0 529.7L331.5 530.1 L327.6 521.3C323.9 512.9 294.8 450.0 264.9 385.6C257.2 369.2 251.0 355.4 251.0 354.9C251.0 353.0 247.5 354.3 230.3 362.9C155.9 399.9 82.6 458.9 25.5 528.0C14.4 541.4 14.0 541.7 18.0 534.5Z';
 
@@ -241,7 +242,6 @@
     ['Does the contact form send an email?', 'This website is static. Unless a form service has been connected, the form prepares your message and lets you send it through WhatsApp or email.']
   ];
 
-  /* Brand-building framework (from the Apex Bee process note) */
   const VISION = 'To be Africa\u2019s most impactful ecosystem, raising a generation of innovators, transforming businesses, and building solutions that shape the future.';
   const MISSION = 'To empower individuals, businesses, and communities with knowledge, technology, and systems that create sustainable growth and generational impact.';
   const FRAMEWORK = [
@@ -256,7 +256,6 @@
     ['Evolutionary Blueprint', 'Markets change, and audiences lose interest in what has become familiar. New ideas, ongoing reasons to engage and steady reminders keep a business relevant and memorable.']
   ];
 
-  /* slug, label, icon */
   const NAV = [
     ['', 'Home', 'home'], ['about', 'About', 'user'], ['services', 'Services', 'layers'],
     ['portfolio', 'Work', 'briefcase'], ['process', 'Process', 'workflow'], ['contact', 'Contact', 'mail']
@@ -285,6 +284,228 @@
   function ext(href) { return 'href="' + href + '" target="_blank" rel="noopener noreferrer"'; }
   function has(obj, key) { return Object.prototype.hasOwnProperty.call(obj, key); }
   function findService(slug) { return SERVICES.filter(function (s) { return s.slug === slug; })[0]; }
+
+  /* ===================================================================
+     SEO HELPERS
+     =================================================================== */
+
+  /* Build the canonical URL for a route slug. The site uses hash routes,
+     but we emit clean-path canonicals so that, once these paths are
+     mirrored as static files (or a prerender step exists), Google indexes
+     https://www.apex-bee.com.ng/services/ etc. */
+  function canonicalFor(slug) {
+    var base = CONFIG.siteUrl;
+    if (!slug) return base + '/';
+    if (slug === 'project-details') return base + '/portfolio/';
+    return base + '/' + slug + '/';
+  }
+
+  /* Ensure a <meta> or <link> exists in <head>; returns the element */
+  function ensureTag(selector, create) {
+    var el = document.head.querySelector(selector);
+    if (!el) { el = create(); document.head.appendChild(el); }
+    return el;
+  }
+
+  function setMetaName(name, content, attr) {
+    if (!content && content !== '') return;
+    var sel = 'meta[name="' + name + '"]';
+    var el = ensureTag(sel, function () {
+      var m = document.createElement('meta');
+      m.setAttribute('name', name);
+      return m;
+    });
+    el.setAttribute(attr || 'content', content);
+  }
+
+  function setMetaProperty(prop, content) {
+    if (!content && content !== '') return;
+    var sel = 'meta[property="' + prop + '"]';
+    var el = ensureTag(sel, function () {
+      var m = document.createElement('meta');
+      m.setAttribute('property', prop);
+      return m;
+    });
+    el.setAttribute('content', content);
+  }
+
+  function setCanonical(href) {
+    var el = ensureTag('link[rel="canonical"]', function () {
+      var l = document.createElement('link');
+      l.rel = 'canonical';
+      return l;
+    });
+    el.href = href;
+  }
+
+  function setHreflang(href) {
+    var sel = 'link[rel="alternate"][hreflang="en"]';
+    var el = ensureTag(sel, function () {
+      var l = document.createElement('link');
+      l.rel = 'alternate';
+      l.hreflang = 'en';
+      return l;
+    });
+    el.href = href;
+  }
+
+  /* Remove all JSON-LD blocks we previously injected so they don't stack */
+  function clearJsonLd() {
+    $$('script[type="application/ld+json"][data-seo="dynamic"]').forEach(function (s) {
+      if (s.parentNode) s.parentNode.removeChild(s);
+    });
+  }
+
+  function addJsonLd(data) {
+    var s = document.createElement('script');
+    s.type = 'application/ld+json';
+    s.setAttribute('data-seo', 'dynamic');
+    s.textContent = JSON.stringify(data);
+    document.head.appendChild(s);
+  }
+
+  /* BreadcrumbList from a [[label, href], ...] array.
+     href may be '' for current page (no link). */
+  function breadcrumbSchema(crumbs) {
+    var items = crumbs.map(function (c, i) {
+      var url = c[1] ? CONFIG.siteUrl + (c[1] === '#/' ? '/' : '/' + c[1].replace(/^#\//, '').replace(/\/$/, '') + '/') : null;
+      var item = {
+        '@type': 'ListItem',
+        position: i + 1,
+        name: c[0]
+      };
+      if (url) item.item = url;
+      return item;
+    });
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: items
+    };
+  }
+
+  /* WebPage schema for the current route */
+  function webPageSchema(slug, title, desc) {
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'WebPage',
+      '@id': canonicalFor(slug) + '#webpage',
+      url: canonicalFor(slug),
+      name: title,
+      description: desc,
+      isPartOf: {
+        '@type': 'WebSite',
+        '@id': CONFIG.siteUrl + '/#website',
+        url: CONFIG.siteUrl + '/',
+        name: CONFIG.brand
+      },
+      inLanguage: 'en',
+      potentialAction: {
+        '@type': 'ReadAction',
+        target: [canonicalFor(slug)]
+      }
+    };
+  }
+
+  /* Service schema for a service page */
+  function serviceSchema(service) {
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'Service',
+      '@id': canonicalFor(service.slug) + '#service',
+      name: service.title,
+      description: service.short,
+      url: canonicalFor(service.slug),
+      provider: {
+        '@type': 'Organization',
+        name: CONFIG.brand,
+        url: CONFIG.siteUrl + '/',
+        logo: CONFIG.ogImage
+      },
+      areaServed: 'Worldwide',
+      serviceType: service.title,
+      offers: {
+        '@type': 'Offer',
+        availability: 'https://schema.org/InStock',
+        priceCurrency: 'NGN',
+        url: canonicalFor(service.slug)
+      }
+    };
+  }
+
+  /* FAQPage schema for FAQ page */
+  function faqSchema() {
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: FAQ.map(function (q) {
+        return {
+          '@type': 'Question',
+          name: q[0],
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: q[1]
+          }
+        };
+      })
+    };
+  }
+
+  /* Map internal hash slug to a clean route key used for canonical */
+  function canonicalSlug(slug) {
+    if (!slug) return '';
+    if (slug === 'project-details') return 'portfolio';
+    return slug;
+  }
+
+  /* Apply all SEO tags for a resolved page */
+  function applySeo(page, slug) {
+    var title = page.title || CONFIG.brand;
+    var desc = page.desc || '';
+    var clean = canonicalSlug(slug);
+    var url = canonicalFor(clean);
+
+    /* Core */
+    document.title = title;
+    setMetaName('description', desc);
+    setMetaName('robots', page.noindex
+      ? 'noindex, follow'
+      : 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1');
+    setCanonical(url);
+    setHreflang(url);
+
+    /* Open Graph */
+    setMetaProperty('og:type', 'website');
+    setMetaProperty('og:site_name', CONFIG.brand);
+    setMetaProperty('og:title', title);
+    setMetaProperty('og:description', desc);
+    setMetaProperty('og:url', url);
+    setMetaProperty('og:image', CONFIG.ogImage);
+    setMetaProperty('og:image:alt', CONFIG.brand + ' logo');
+    setMetaProperty('og:locale', 'en_NG');
+
+    /* Twitter */
+    setMetaName('twitter:card', 'summary_large_image');
+    setMetaName('twitter:site', '@apex_bee_');
+    setMetaName('twitter:title', title);
+    setMetaName('twitter:description', desc);
+    setMetaName('twitter:image', CONFIG.ogImage);
+
+    /* JSON-LD */
+    clearJsonLd();
+    addJsonLd(webPageSchema(clean, title, desc));
+
+    /* Page-specific JSON-LD */
+    if (clean === 'faq') {
+      addJsonLd(faqSchema());
+    }
+    if (page.service) {
+      addJsonLd(serviceSchema(page.service));
+    }
+    if (page.crumbs) {
+      addJsonLd(breadcrumbSchema(page.crumbs));
+    }
+  }
 
   /* ----------------------------------------------------------- SHARED PARTS */
   function sectionHead(eyebrow, titleHtml, lead) {
@@ -342,7 +563,6 @@
       '<span class="hero__tag">' + esc(CONFIG.tag) + '</span></div>';
   }
 
-  /* Marquee: placed right after the "Hello, we're Apex Bee" caption */
   function marqueeHtml() {
     const group = function (hidden) {
       return '<div class="marquee__group"' + (hidden ? ' aria-hidden="true"' : '') + '>' +
@@ -356,6 +576,7 @@
     return {
       title: CONFIG.brand + ' | ' + CONFIG.slogan,
       desc: 'Apex Bee is a creative and technology company: video editing, motion graphics, design, websites, software, AI and automation. Everything your brand needs.',
+      crumbs: [['Home', '#/']],
       html:
         '<section class="hero"><div class="hero__bg" aria-hidden="true"></div>' +
         '<div class="container hero__inner"><div class="hero__copy">' +
@@ -412,6 +633,7 @@
     return {
       title: 'About | ' + CONFIG.brand,
       desc: 'Apex Bee is a creative and technology company helping brands look sharp and work well across video, design, web, software and automation.',
+      crumbs: [['Home', '#/'], ['About', '#/about']],
       html:
         pageHero([['Home', '#/'], ['About']], 'About', 'A creative and technology company <em>for modern brands.</em>',
           'Apex Bee combines creative production with web and software development, so your brand is consistent from the first impression to the final click.') +
@@ -457,6 +679,7 @@
     return {
       title: 'Services | ' + CONFIG.brand,
       desc: 'Video editing, motion graphics, graphic and brand design, websites, e-commerce, content creation, AI automation, software development and more from Apex Bee.',
+      crumbs: [['Home', '#/'], ['Services', '#/services']],
       html:
         pageHero([['Home', '#/'], ['Services']], 'Services', 'Everything your brand needs, <em>in one place.</em>',
           'Twelve services across creative production, web and software. Open any service to see what it includes and how we work.') +
@@ -478,6 +701,8 @@
     return {
       title: s.title + ' | ' + CONFIG.brand,
       desc: s.short,
+      service: s,
+      crumbs: [['Home', '#/'], ['Services', '#/services'], [s.title, '#/' + s.slug]],
       html:
         pageHero([['Home', '#/'], ['Services', '#/services'], [s.title]], 'Service ' + pad(s.n), s.title, s.intro) +
 
@@ -533,6 +758,7 @@
     return {
       title: 'Portfolio | ' + CONFIG.brand,
       desc: 'Selected creative, web and software work from Apex Bee.',
+      crumbs: [['Home', '#/'], ['Work', '#/portfolio']],
       html:
         pageHero([['Home', '#/'], ['Work']], 'Portfolio', 'Selected work, <em>shown with context.</em>',
           'We only publish real, finished projects, each with the context behind it.') +
@@ -570,6 +796,8 @@
       return {
         title: 'Project Details | ' + CONFIG.brand,
         desc: 'Project details from Apex Bee.',
+        noindex: true,
+        crumbs: [['Home', '#/'], ['Work', '#/portfolio'], ['Project details', '']],
         html:
           pageHero([['Home', '#/'], ['Work', '#/portfolio'], ['Project details']], 'Case study', 'No project <em>selected.</em>',
             'Project case studies will appear here once they are published.') +
@@ -581,6 +809,7 @@
     return {
       title: w.title + ' | ' + CONFIG.brand,
       desc: w.summary || 'Project details and case study from Apex Bee.',
+      crumbs: [['Home', '#/'], ['Work', '#/portfolio'], [w.title, '']],
       html:
         pageHero([['Home', '#/'], ['Work', '#/portfolio'], ['Project details']], 'Case study', esc(w.title), '') +
         '<section class="section section--light"><div class="container"><div class="steps">' +
@@ -607,6 +836,7 @@
     return {
       title: 'Process | ' + CONFIG.brand,
       desc: 'The Apex Bee vision, mission and nine-step brand-building process for startups, small businesses and established brands.',
+      crumbs: [['Home', '#/'], ['Process', '#/process']],
       html:
         pageHero([['Home', '#/'], ['Process']], 'Process', 'A clear process, <em>built on a clear purpose.</em>',
           'Our vision and mission set the direction. Our process turns it into practical steps for startups, small businesses and established brands.') +
@@ -694,6 +924,7 @@
     return {
       title: 'Contact | ' + CONFIG.brand,
       desc: 'Contact Apex Bee on WhatsApp, email or X, or send an enquiry through the contact form.',
+      crumbs: [['Home', '#/'], ['Contact', '#/contact']],
       html:
         pageHero([['Home', '#/'], ['Contact']], 'Contact', 'Tell us what <em>you need.</em>',
           'The fastest way to reach us is WhatsApp. You can also email us, follow us on X or use the form below.') +
@@ -728,6 +959,7 @@
     return {
       title: 'FAQ | ' + CONFIG.brand,
       desc: 'Frequently asked questions about working with Apex Bee.',
+      crumbs: [['Home', '#/'], ['FAQ', '#/faq']],
       html:
         pageHero([['Home', '#/'], ['FAQ']], 'FAQ', 'Questions, <em>answered.</em>', 'If you do not see your question here, message us and we will help.') +
         '<section class="section section--light"><div class="container"><div class="prose"><div class="faq">' +
@@ -742,6 +974,7 @@
     return {
       title: titleText + ' | ' + CONFIG.brand,
       desc: titleText + ' for the Apex Bee website.',
+      crumbs: [['Home', '#/'], [slugTitle, '#' + slugTitle.toLowerCase()]],
       html:
         pageHero([['Home', '#/'], [slugTitle]], 'Legal', titleText, intro) +
         '<section class="section section--light"><div class="container"><div class="prose">' +
@@ -789,6 +1022,8 @@
     return {
       title: 'Page not found | ' + CONFIG.brand,
       desc: 'The page you are looking for could not be found.',
+      noindex: true,
+      crumbs: [['Home', '#/'], ['404', '']],
       html:
         '<section class="notfound"><div class="container stack-lg">' +
         '<p class="notfound__code" aria-hidden="true">404</p>' +
@@ -825,7 +1060,6 @@
 
   /* ----------------------------------------------------------------- SHELL */
   let main, menu, menuNav, toggleBtn, closeBtn, announcer, revealObserver;
-  /* mode: 'closed' | 'full' (full-screen menu) | 'rail' (slim icon rail) */
   const state = { mode: 'closed', lastFocus: null, lastSubmit: 0, firstRender: true };
 
   function buildFooter() {
@@ -1023,19 +1257,12 @@
     items.forEach(function (el) { revealObserver.observe(el); });
   }
 
-  function setMeta(title, desc) {
-    document.title = title;
-    let m = $('meta[name="description"]');
-    if (!m) { m = document.createElement('meta'); m.name = 'description'; document.head.appendChild(m); }
-    m.setAttribute('content', desc);
-  }
-
   function paint(result, slug) {
     const page = result.page;
     main.innerHTML = page.html;
-    setMeta(page.title, page.desc);
-    /* faq / privacy / terms live in the "More" group; match them by slug */
-    setActive(result.key === null || result.key === 'faq' || result.key === 'privacy-policy' || result.key === 'terms' ? (result.key || null) : result.key);
+    /* SEO first, then focus/a11y */
+    applySeo(page, slug);
+    setActive(result.key);
     if (page.mount) page.mount(main);
     initReveal(main);
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
@@ -1105,7 +1332,7 @@
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       const fd = new FormData(form);
-      if (clean(fd.get('website'), 50)) { return; } /* honeypot: silently ignore bots */
+      if (clean(fd.get('website'), 50)) { return; }
 
       const svc = findService(fd.get('service'));
       const data = {
@@ -1187,7 +1414,7 @@
       const left = Math.max(0, MIN - (performance.now() - started));
       setTimeout(hide, left);
     });
-    setTimeout(hide, 4000); /* failsafe */
+    setTimeout(hide, 4000);
   }
 
   /* ------------------------------------------------------------------- INIT */
