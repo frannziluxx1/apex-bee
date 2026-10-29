@@ -1,0 +1,28 @@
+{
+  "name": "Apex Bee",
+  "short_name": "Apex Bee",
+  "description": "Everything Your Brand Needs — video, motion, design, websites, software, AI and automation.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f8f1e3",
+  "theme_color": "#f8f1e3",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["business", "design", "technology"],
+  "icons": [
+    {
+      "src": "apex.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any"
+    },
+    {
+      "src": "apex.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}
