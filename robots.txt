@@ -1,0 +1,15 @@
+# ============================================================
+# robots.txt for https://www.apex-bee.com.ng/
+# Apex Bee — Everything Your Brand Needs
+# Last updated: 2026-10-29
+# ============================================================
+
+# ---- All crawlers ----
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://www.apex-bee.com.ng/sitemap.xml
+
+# Host (Yandex-specific, harmless for others)
+Host: https://www.apex-bee.com.ng
